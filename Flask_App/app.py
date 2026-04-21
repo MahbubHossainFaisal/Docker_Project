@@ -7,7 +7,7 @@ from mysql.connector import Error
 app = Flask(__name__)
 
 # Database connection parameters
-DB_HOST = os.environ.get('DB_HOST', 'project_mysql_container')
+DB_HOST = os.environ.get('DB_HOST', 'mysql')
 DB_PORT = int(os.environ.get('DB_PORT', 3306))
 DB_USER = os.environ.get('DB_USER', 'root')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'root')

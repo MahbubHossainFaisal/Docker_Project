@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    build: ./MySQL
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./MySQL/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./MySQL/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - my_project_network
+
+  flask:
+    build: ./Flask_App
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Flask_App/uploads:/app/uploads
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: testdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/data"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - my_project_network
+
+networks:
+  my_project_network:
